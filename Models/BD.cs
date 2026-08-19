@@ -60,9 +60,9 @@ namespace TP05.Models
 DECLARE @newId INT;
 SELECT @newId = ISNULL(MAX(id), 0) + 1 FROM Registro;
 INSERT INTO Registro (nombreUsario, contraseña, nombre, id, apellido, tipoUsuario)
-VALUES (@NombreUsuario, @Contrasena, @Nombre, @newId, @Apellido, @TipoUsuario);
+VALUES (@NombreUsuario, @Contraseña, @Nombre, @newId, @Apellido, @TipoUsuario);
 ";
-                    int rows = connection.Execute(sql, new { u.NombreUsuario, u.Contrasena, u.Nombre, u.Apellido, u.TipoUsuario });
+                    int rows = connection.Execute(sql, new { u.NombreUsuario, u.Contraseña, u.Nombre, u.Apellido, u.TipoUsuario });
                     return rows > 0;
                 }
             }
@@ -73,14 +73,14 @@ VALUES (@NombreUsuario, @Contrasena, @Nombre, @newId, @Apellido, @TipoUsuario);
         }
 
         // Valida credenciales; devuelve el usuario si coinciden, o null
-        public Usuario ValidarCredenciales(string usuario, string contrasena)
+        public Usuario ValidarCredenciales(string usuario, string contraseña)
         {
             try
             {
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
-                    string query = "SELECT id AS Id, nombreUsario AS NombreUsuario, contraseña AS Contrasena, nombre AS Nombre, apellido AS Apellido, tipoUsuario AS TipoUsuario FROM Registro WHERE nombreUsario = @usuario AND contraseña = @contrasena";
-                    return connection.QueryFirstOrDefault<Usuario>(query, new { usuario, contrasena });
+                    string query = "SELECT id AS Id, nombreUsario AS NombreUsuario, contraseña AS Contraseña, nombre AS Nombre, apellido AS Apellido, tipoUsuario AS TipoUsuario FROM Registro WHERE nombreUsario = @usuario AND contraseña = @contrasena";
+                    return connection.QueryFirstOrDefault<Usuario>(query, new { usuario, contraseña });
                 }
             }
             catch (Exception)

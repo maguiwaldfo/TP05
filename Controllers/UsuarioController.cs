@@ -43,10 +43,10 @@ public class UsuarioController : Controller
     // POST: Procesar login
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Login(string NombreUsuario, string Contrasena)
+    public IActionResult Login(string NombreUsuario, string Contraseña)
     {
         // Login simple: validar credenciales y mostrar la vista de bienvenida si coinciden.
-        Usuario user = _bd.ValidarCredenciales(NombreUsuario, Contrasena);
+        Usuario user = _bd.ValidarCredenciales(NombreUsuario, Contraseña);
         if (user != null)
         {
             // Guardar sesión mínima (sin operadores ??)
