@@ -6,63 +6,68 @@ using TP05.Models;
 
 namespace TP05.Controllers;
 
-// Controlador `UsuarioController` siguiendo el estilo simple del TP03ahorcado.
-public class UsuarioController : Controller
+[HttpPost]
+public IActionResult Register(Usuario usuario)
 {
-    // Instancia simple de la clase BD (manejo de la BD con Dapper)
-    private readonly BD _bd = new BD();
+    BD bd = new BD();
 
-    // GET: Mostrar formulario de registro
-    public IActionResult Register()
+    if (usuario.NombreUsuario == "" ||
+        usuario.Contraseña == "" ||
+        usuario.Nombre == "" ||
+        usuario.Apellido == "" ||
+        usuario.TipoUsuario == "")
     {
+        ViewBag.Error = "Complete todos los campos";
+        return View(usuario);
+    }
+
+    if (bd.UsernameExists(usuario.NombreUsuario))
+    {
+        ViewBag.Error = "El nombre de usuario ya existe";
+        return View(usuario);
+    }
+
+    bool registrado = bd.RegistrarUsuario(usuario);
+
+    if (registrado)
+    {
+        return RedirectToAction("Login");
+    }
+
+    ViewBag.Error = "No se pudo registrar el usuario";
+    return View(usuario);
+}
+[HttpPost]
+public IActionResult Login(string NombreUsuario, string Contraseña)
+{
+    BD bd = new BD();
+
+    if (NombreUsuario == "" || Contraseña == "")
+    {
+        ViewBag.Error = "Complete todos los campos";
         return View();
     }
 
-    // POST: Procesar registro de usuario
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Register(Usuario model)
-    {
-        // Registro simple: intentar insertar y mostrar la vista de login si se pudo.
-        bool ok = _bd.RegistrarUsuario(model);
-        if (ok)
-        {
-            return View("Login");
-        }
+    Usuario usuario = bd.ValidarCredenciales(
+        NombreUsuario,
+        Contraseña
+    );
 
-        // Si falla, volver al formulario de registro (sin mensajes adicionales)
-        return View(model);
+    if (usuario != null)
+    {
+        HttpContext.Session.SetInt32("Id", usuario.Id);
+        HttpContext.Session.SetString("NombreUsuario", usuario.NombreUsuario);
+        HttpContext.Session.SetString("Nombre", usuario.Nombre);
+        HttpContext.Session.SetString("Apellido", usuario.Apellido);
+        HttpContext.Session.SetString("TipoUsuario", usuario.TipoUsuario);
+
+        return RedirectToAction("Bienvenida");
     }
 
-    // GET: Mostrar formulario de login
-    public IActionResult Login()
-    {
-        return View();
-    }
+    ViewBag.Error = "Usuario o contraseña incorrectos";
 
-    // POST: Procesar login
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult Login(string NombreUsuario, string Contraseña)
-    {
-        // Login simple: validar credenciales y mostrar la vista de bienvenida si coinciden.
-        Usuario user = _bd.ValidarCredenciales(NombreUsuario, Contraseña);
-        if (user != null)
-        {
-            // Guardar sesión mínima (sin operadores ??)
-            HttpContext.Session.SetString("NombreUsuario", user.NombreUsuario);
-            HttpContext.Session.SetString("Nombre", user.Nombre);
-            HttpContext.Session.SetString("Apellido", user.Apellido);
-            HttpContext.Session.SetString("TipoUsuario", user.TipoUsuario);
-            HttpContext.Session.SetInt32("Id", user.Id);
-
-            // Mostrar directamente la vista Bienvenida con el usuario
-            return View("Bienvenida", user);
-        }
-
-        // Credenciales inválidas: volver al formulario de login
-        return View();
-    }
+    return View();
+}
 
     // GET: Página privada de bienvenida
     public IActionResult Bienvenida()
@@ -84,4 +89,3 @@ public class UsuarioController : Controller
         HttpContext.Session.Clear();
         return RedirectToAction("Login");
     }
-}

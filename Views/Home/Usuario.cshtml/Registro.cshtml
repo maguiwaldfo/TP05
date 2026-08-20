@@ -1,0 +1,39 @@
+@model TP05.Models.Usuario
+
+<h1>Registrarse</h1>
+
+<form action="/Usuario/Register" method="post" onsubmit="return validarRegistro()">
+
+    <label>Nombre de usuario</label>
+    <input type="text" id="NombreUsuario" name="NombreUsuario">
+
+    <label>Contraseña</label>
+    <input type="password" id="Contraseña" name="Contraseña">
+
+    <label>Nombre</label>
+    <input type="text" id="Nombre" name="Nombre">
+
+    <label>Apellido</label>
+    <input type="text" id="Apellido" name="Apellido">
+
+    <label>Tipo de usuario</label>
+    <select id="TipoUsuario" name="TipoUsuario">
+        <option value="">Seleccione un tipo</option>
+        <option value="Alumno">Alumno</option>
+        <option value="Docente">Docente</option>
+        <option value="Coordinador">Coordinador</option>
+        <option value="Padre">Padre</option>
+    </select>
+
+    <button type="submit">Registrarse</button>
+
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <p>@ViewBag.Error</p>
+}
+
+<a href="/Usuario/Login">Ya tengo una cuenta</a>
+
+<script src="~/js/script.js"></script>

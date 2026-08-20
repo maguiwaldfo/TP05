@@ -1,6 +1,3 @@
-// Clase BD: operaciones de base de datos usando Dapper y Microsoft.Data.SqlClient.
-// Contiene métodos simples para listar usuarios, verificar existencia,
-// registrar y validar credenciales (estilo TP03ahorcado).
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,81 +8,99 @@ namespace TP05.Models
 {
     public class BD
     {
-        // Cadena de conexión (ajustar según tu entorno)
         private string _connectionString = @"Server=localhost;DataBase=RegistroUsuario;Integrated Security=True;TrustServerCertificate=True;";
 
-        // Devuelve todos los usuarios de la tabla Registro
         public List<Usuario> ObtenerUsuarios()
         {
-            try
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
-                {
-                    string query = "SELECT id AS Id, nombreUsario AS NombreUsuario, contraseña AS Contrasena, nombre AS Nombre, apellido AS Apellido, tipoUsuario AS TipoUsuario FROM Registro";
-                    return connection.Query<Usuario>(query).ToList();
-                }
-            }
-            catch (Exception)
-            {
-                return new List<Usuario>();
+                string query = "SELECT id AS Id, nombreUsario AS NombreUsuario, contraseña AS Contraseña, nombre AS Nombre, apellido AS Apellido, tipoUsuario AS TipoUsuario FROM Registro";
+
+                return connection.Query<Usuario>(query).ToList();
             }
         }
 
-        // Verifica si ya existe un nombre de usuario
-        public bool UsernameExists(string username)
+        public bool UsuarioExiste(string nombreUsuario, string contraseña)
         {
-            try
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
-                {
-                    string query = "SELECT COUNT(1) FROM Registro WHERE nombreUsario = @usuario";
-                    int count = connection.ExecuteScalar<int>(query, new { usuario = username });
-                    return count > 0;
-                }
+                string query = "SELECT COUNT(1) FROM Registro WHERE nombreUsario = @nombreUsuario AND contraseña = @contraseña";
+
+                int cantidad = connection.ExecuteScalar<int>(
+                    query,
+                    new { nombreUsuario, contraseña }
+                );
+
+                return cantidad > 0;
             }
-            catch (Exception)
+        }
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                return false;
+                string query = "SELECT COUNT(1) FROM Registro WHERE nombreUsario = @usuario";
+
+                int cantidad = connection.ExecuteScalar<int>(
+                    query,
+                    new { usuario = username }
+                );
+
+                return cantidad > 0;
             }
         }
 
-        // Inserta un nuevo usuario (calcula id = MAX(id)+1)
         public bool RegistrarUsuario(Usuario u)
         {
-            try
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
+                string sql = @"
+                    DECLARE @newId INT;
+
+                    SELECT @newId = ISNULL(MAX(id), 0) + 1
+                    FROM Registro;
+
+                    INSERT INTO Registro
+                    (id, nombreUsario, contraseña, nombre, apellido, tipoUsuario)
+                    VALUES
+                    (@newId, @NombreUsuario, @Contraseña, @Nombre, @Apellido, @TipoUsuario);
+                ";
+
+                int filas = connection.Execute(sql, new
                 {
-                    string sql = @"
-DECLARE @newId INT;
-SELECT @newId = ISNULL(MAX(id), 0) + 1 FROM Registro;
-INSERT INTO Registro (nombreUsario, contraseña, nombre, id, apellido, tipoUsuario)
-VALUES (@NombreUsuario, @Contraseña, @Nombre, @newId, @Apellido, @TipoUsuario);
-";
-                    int rows = connection.Execute(sql, new { u.NombreUsuario, u.Contraseña, u.Nombre, u.Apellido, u.TipoUsuario });
-                    return rows > 0;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
+                    u.NombreUsuario,
+                    u.Contraseña,
+                    u.Nombre,
+                    u.Apellido,
+                    u.TipoUsuario
+                });
+
+                return filas > 0;
             }
         }
 
-        // Valida credenciales; devuelve el usuario si coinciden, o null
         public Usuario ValidarCredenciales(string usuario, string contraseña)
         {
-            try
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
-                {
-                    string query = "SELECT id AS Id, nombreUsario AS NombreUsuario, contraseña AS Contraseña, nombre AS Nombre, apellido AS Apellido, tipoUsuario AS TipoUsuario FROM Registro WHERE nombreUsario = @usuario AND contraseña = @contrasena";
-                    return connection.QueryFirstOrDefault<Usuario>(query, new { usuario, contraseña });
-                }
-            }
-            catch (Exception)
-            {
-                return null;
+                string query = @"
+                    SELECT
+                        id AS Id,
+                        nombreUsario AS NombreUsuario,
+                        contraseña AS Contraseña,
+                        nombre AS Nombre,
+                        apellido AS Apellido,
+                        tipoUsuario AS TipoUsuario
+                    FROM Registro
+                    WHERE nombreUsario = @usuario
+                    AND contraseña = @contraseña";
+
+                return connection.QueryFirstOrDefault<Usuario>(
+                    query,
+                    new
+                    {
+                        usuario,
+                        contraseña
+                    }
+                );
             }
         }
     }
