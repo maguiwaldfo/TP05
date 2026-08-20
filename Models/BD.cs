@@ -20,20 +20,7 @@ namespace TP05.Models
             }
         }
 
-        public bool UsuarioExiste(string nombreUsuario, string contraseña)
-        {
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                string query = "SELECT COUNT(1) FROM Registro WHERE nombreUsario = @nombreUsuario AND contraseña = @contraseña";
-
-                int cantidad = connection.ExecuteScalar<int>(
-                    query,
-                    new { nombreUsuario, contraseña }
-                );
-
-                return cantidad > 0;
-            }
-        }
+        public bool UsernameExists(string usuario)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -41,7 +28,7 @@ namespace TP05.Models
 
                 int cantidad = connection.ExecuteScalar<int>(
                     query,
-                    new { usuario = username }
+                    new { usuario }
                 );
 
                 return cantidad > 0;

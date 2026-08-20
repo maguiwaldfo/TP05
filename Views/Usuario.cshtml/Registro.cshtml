@@ -2,21 +2,30 @@
 
 <h1>Registrarse</h1>
 
-<form action="/Usuario/Register" method="post" onsubmit="return validarRegistro()">
+<form action="/Usuario/Registro" method="post" onsubmit="return validarRegistro()">
 
     <label>Nombre de usuario</label>
     <input type="text" id="NombreUsuario" name="NombreUsuario">
 
+    <br>
+
     <label>Contraseña</label>
     <input type="password" id="Contraseña" name="Contraseña">
+
+    <br>
 
     <label>Nombre</label>
     <input type="text" id="Nombre" name="Nombre">
 
+    <br>
+
     <label>Apellido</label>
     <input type="text" id="Apellido" name="Apellido">
 
+    <br>
+
     <label>Tipo de usuario</label>
+
     <select id="TipoUsuario" name="TipoUsuario">
         <option value="">Seleccione un tipo</option>
         <option value="Alumno">Alumno</option>
@@ -24,6 +33,8 @@
         <option value="Coordinador">Coordinador</option>
         <option value="Padre">Padre</option>
     </select>
+
+    <br>
 
     <button type="submit">Registrarse</button>
 
