@@ -1,0 +1,30 @@
+@model TP05.Models.Usuario
+
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Iniciar sesión</h1>
+
+        <form class="auth-form" action="/Usuario/Login" method="post" onsubmit="return validarLogin()">
+            <div class="form-group">
+                <label for="NombreUsuario">Nombre de usuario</label>
+                <input class="auth-input" type="text" id="NombreUsuario" name="NombreUsuario">
+            </div>
+
+            <div class="form-group">
+                <label for="Contraseña">Contraseña</label>
+                <input class="auth-input" type="password" id="Contraseña" name="Contraseña">
+            </div>
+
+            <button class="auth-button" type="submit">Iniciar sesión</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <p class="auth-message">@ViewBag.Error</p>
+        }
+
+        <a class="auth-link" href="/Usuario/Registro">Registrarse</a>
+    </div>
+</div>
+
+<script src="~/js/script.js"></script>

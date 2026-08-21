@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.SqlClient;
@@ -14,80 +13,63 @@ namespace TP05.Models
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = "SELECT id AS Id, nombreUsario AS NombreUsuario, contraseña AS Contraseña, nombre AS Nombre, apellido AS Apellido, tipoUsuario AS TipoUsuario FROM Registro";
+                string query = "SELECT * FROM Registro";
 
                 return connection.Query<Usuario>(query).ToList();
             }
         }
 
-        public bool UsernameExists(string usuario)
+        public bool UsernameExists(string nombreUsuario)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = "SELECT COUNT(1) FROM Registro WHERE nombreUsario = @usuario";
+                string query = "SELECT COUNT(1) FROM Registro WHERE nombreUsuario = @NombreUsuario";
 
                 int cantidad = connection.ExecuteScalar<int>(
                     query,
-                    new { usuario }
+                    new
+                    {
+                        NombreUsuario = nombreUsuario
+                    }
                 );
 
                 return cantidad > 0;
             }
         }
 
-        public bool RegistrarUsuario(Usuario u)
+        public bool RegistrarUsuario(Usuario usuario)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string sql = @"
-                    DECLARE @newId INT;
+                string query = "INSERT INTO Registro (nombreUsuario, contraseña, nombre, apellido, tipoUsuario) VALUES (@NombreUsuario, @Contraseña, @Nombre, @Apellido, @TipoUsuario)";
 
-                    SELECT @newId = ISNULL(MAX(id), 0) + 1
-                    FROM Registro;
+                int cantidad = connection.Execute(query, usuario);
 
-                    INSERT INTO Registro
-                    (id, nombreUsario, contraseña, nombre, apellido, tipoUsuario)
-                    VALUES
-                    (@newId, @NombreUsuario, @Contraseña, @Nombre, @Apellido, @TipoUsuario);
-                ";
-
-                int filas = connection.Execute(sql, new
-                {
-                    u.NombreUsuario,
-                    u.Contraseña,
-                    u.Nombre,
-                    u.Apellido,
-                    u.TipoUsuario
-                });
-
-                return filas > 0;
+                return cantidad > 0;
             }
         }
 
-        public Usuario ValidarCredenciales(string usuario, string contraseña)
+        public Usuario ValidarCredenciales(string nombreUsuario, string contraseña)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                string query = @"
-                    SELECT
-                        id AS Id,
-                        nombreUsario AS NombreUsuario,
-                        contraseña AS Contraseña,
-                        nombre AS Nombre,
-                        apellido AS Apellido,
-                        tipoUsuario AS TipoUsuario
-                    FROM Registro
-                    WHERE nombreUsario = @usuario
-                    AND contraseña = @contraseña";
+                string query = "SELECT * FROM Registro WHERE nombreUsuario = @NombreUsuario AND contraseña = @Contraseña";
 
-                return connection.QueryFirstOrDefault<Usuario>(
+                List<Usuario> usuarios = connection.Query<Usuario>(
                     query,
                     new
                     {
-                        usuario,
-                        contraseña
+                        NombreUsuario = nombreUsuario,
+                        Contraseña = contraseña
                     }
-                );
+                ).ToList();
+
+                if (usuarios.Count > 0)
+                {
+                    return usuarios[0];
+                }
+
+                return null;
             }
         }
     }

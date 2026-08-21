@@ -1,0 +1,51 @@
+@model TP05.Models.Usuario
+
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Registrarse</h1>
+
+        <form class="auth-form" action="/Usuario/Registro" method="post" onsubmit="return validarRegistro()">
+            <div class="form-group">
+                <label for="NombreUsuario">Nombre de usuario</label>
+                <input class="auth-input" type="text" id="NombreUsuario" name="NombreUsuario">
+            </div>
+
+            <div class="form-group">
+                <label for="Contraseña">Contraseña</label>
+                <input class="auth-input" type="password" id="Contraseña" name="Contraseña">
+            </div>
+
+            <div class="form-group">
+                <label for="Nombre">Nombre</label>
+                <input class="auth-input" type="text" id="Nombre" name="Nombre">
+            </div>
+
+            <div class="form-group">
+                <label for="Apellido">Apellido</label>
+                <input class="auth-input" type="text" id="Apellido" name="Apellido">
+            </div>
+
+            <div class="form-group">
+                <label for="TipoUsuario">Tipo de usuario</label>
+                <select class="auth-select" id="TipoUsuario" name="TipoUsuario">
+                    <option value="">Seleccione un tipo</option>
+                    <option value="Alumno">Alumno</option>
+                    <option value="Docente">Docente</option>
+                    <option value="Coordinador">Coordinador</option>
+                    <option value="Padre">Padre</option>
+                </select>
+            </div>
+
+            <button class="auth-button" type="submit">Registrarse</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <p class="auth-message">@ViewBag.Error</p>
+        }
+
+        <a class="auth-link" href="/Usuario/Login">Ya tengo una cuenta</a>
+    </div>
+</div>
+
+<script src="~/js/script.js"></script>
